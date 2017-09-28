@@ -2,4 +2,6 @@
     <string name="app_name">Save Money</string>
     <string name="action_favorite">Action Favorite</string>
     <string name="action_settings">Action Settings</string>
+    <string name="title_activity_child">Activity child</string>
+    <string name="action_search">Action search</string>
 </resources>
