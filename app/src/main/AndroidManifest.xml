@@ -24,16 +24,16 @@
             <!--</intent-filter>-->
 
         </activity>
-        <activity
-            android:name=".MyChildActivity"
-            android:label="@string/title_activity_child"
-            android:parentActivityName=".MainActivity" >
+        <!--<activity-->
+            <!--android:name=".MyChildActivity"-->
+            <!--android:label="@string/title_activity_child"-->
+            <!--android:parentActivityName=".MainActivity" >-->
 
-            <!-- Parent activity meta-data to support 4.0 and lower -->
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
-        </activity>
+            <!--&lt;!&ndash; Parent activity meta-data to support 4.0 and lower &ndash;&gt;-->
+            <!--<meta-data-->
+                <!--android:name="android.support.PARENT_ACTIVITY"-->
+                <!--android:value=".MainActivity" />-->
+        <!--</activity>-->
     </application>
 
 </manifest>
