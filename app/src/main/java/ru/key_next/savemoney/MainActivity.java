@@ -1,7 +1,9 @@
 package ru.key_next.savemoney;
 
+import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -26,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private String[] planetTitles;
     private DrawerLayout drawerLayout;
     private ListView drawerList;
+    private android.support.v7.app.ActionBar actionBar;
 
     private android.support.v7.app.ActionBarDrawerToggle actionBarDrawerToggle;
 
@@ -40,17 +43,20 @@ public class MainActivity extends AppCompatActivity {
 
         drawerLayout = (DrawerLayout) findViewById(R.id.navigation_drawer);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
+        actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeButtonEnabled(true);
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_drawer);
+
 
         actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.app_name, R.string.app_name) {
             public void onDrawerClosed(View view) {
-                getSupportActionBar().setTitle(mTitle);
+                actionBar.setTitle(mTitle);
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
 
             public void onDrawerOpened(View drawerView) {
-                getSupportActionBar().setTitle(drawerTitle);
+                actionBar.setTitle(drawerTitle);
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
         };
@@ -62,6 +68,8 @@ public class MainActivity extends AppCompatActivity {
         drawerList.setAdapter(new ArrayAdapter<String>(this,
                 R.layout.drawer_list_item, planetTitles));
         drawerList.setOnItemClickListener(new DrawerItemClickListener());
+
+        getFragmentManager().beginTransaction().replace(R.id.content_frame, new MainFragment()).commit();
     }
 
     @Override
@@ -87,13 +95,6 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private class DrawerItemClickListener implements android.widget.AdapterView.OnItemClickListener {
-        @Override
-        public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-            selectItem(position);
-        }
-    }
-
     private void selectItem(int position) {
         Fragment fragment = new PlanetFragment();
         Bundle args = new Bundle();
@@ -106,6 +107,12 @@ public class MainActivity extends AppCompatActivity {
         drawerList.setItemChecked(position, true);
         setTitle(planetTitles[position]);
         drawerLayout.closeDrawer(drawerList);
+    }
+
+    @Override
+    public void setTitle(CharSequence title) {
+        mTitle = title;
+        actionBar.setTitle(mTitle);
     }
 
     public static class PlanetFragment extends Fragment {
@@ -130,9 +137,23 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public void setTitle(CharSequence title) {
-        mTitle = title;
-        getSupportActionBar().setTitle(mTitle);
+    public static class MainFragment extends Fragment {
+
+        public MainFragment() {
+            // Empty constructor required for fragment subclasses
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
+            return inflater.inflate(R.layout.fragment_main, container, false);
+        }
+    }
+
+    private class DrawerItemClickListener implements android.widget.AdapterView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+            selectItem(position);
+        }
     }
 }
