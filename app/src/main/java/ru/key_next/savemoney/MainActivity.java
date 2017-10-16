@@ -32,11 +32,14 @@ public class MainActivity extends AppCompatActivity {
 
     private android.support.v7.app.ActionBarDrawerToggle actionBarDrawerToggle;
 
+    private DBHelper dbHelper;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        dbHelper = new DBHelper(this);
         mTitle = drawerTitle = getTitle();
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
