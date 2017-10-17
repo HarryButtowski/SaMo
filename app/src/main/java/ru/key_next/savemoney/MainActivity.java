@@ -1,9 +1,12 @@
 package ru.key_next.savemoney;
 
-import android.app.ActionBar;
+import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.support.v7.app.ActionBarActivity;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -17,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.ListView;
 
@@ -30,27 +34,86 @@ public class MainActivity extends AppCompatActivity {
     private ListView drawerList;
     private android.support.v7.app.ActionBar actionBar;
 
-    private android.support.v7.app.ActionBarDrawerToggle actionBarDrawerToggle;
-
-    private DBHelper dbHelper;
+    private final static int DIALOG = 1;
+    private int myYear = 2011;
+    private int myMonth = 02;
+    private int myDay = 03;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        dbHelper = new DBHelper(this);
         mTitle = drawerTitle = getTitle();
+
+        this.createActionBar();
+        this.fillDrawerList();
+        this.fillMainList();
+    }
+
+    public void actionAddExpense() {
+        showDialog(DIALOG);
+    }
+
+    protected Dialog onCreateDialog(int id) {
+        if (id == DIALOG) {
+            DatePickerDialog tpd = new DatePickerDialog(this, myCallBack, myYear, myMonth, myDay);
+            return tpd;
+        }
+        return super.onCreateDialog(id);
+    }
+
+    DatePickerDialog.OnDateSetListener myCallBack = new DatePickerDialog.OnDateSetListener() {
+
+        public void onDateSet(DatePicker view, int year, int monthOfYear,
+                              int dayOfMonth) {
+            myYear = year;
+            myMonth = monthOfYear;
+            myDay = dayOfMonth;
+        }
+    };
+
+
+    private void fillMainList() {
+        DBHelper dbHelper;
+        dbHelper = new DBHelper(this);
+
+        SQLiteDatabase db;
+
+        try {
+            db = dbHelper.getWritableDatabase();
+        } catch (SQLiteException e) {
+            db = dbHelper.getReadableDatabase();
+        }
+
+        Cursor cursor = db.query(DBHelper.PeriodColumns.TABLE, null, null, null, null, null, null);
+        if (cursor != null)
+            cursor.close();
+
+        db.close();
+    }
+
+    private void fillDrawerList() {
+        planetTitles = getResources().getStringArray(R.array.planets_array);
+        drawerList = (ListView) findViewById(R.id.left_drawer);
+
+        drawerList.setAdapter(new ArrayAdapter<String>(this,
+                R.layout.drawer_list_item, planetTitles));
+        drawerList.setOnItemClickListener(new DrawerItemClickListener());
+
+        getFragmentManager().beginTransaction().replace(R.id.content_frame, new MainFragment()).commit();
+    }
+
+    private void createActionBar() {
+        ActionBarDrawerToggle actionBarDrawerToggle;
+        drawerLayout = (DrawerLayout) findViewById(R.id.navigation_drawer);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        drawerLayout = (DrawerLayout) findViewById(R.id.navigation_drawer);
 
         actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
         actionBar.setHomeAsUpIndicator(R.drawable.ic_drawer);
-
 
         actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.app_name, R.string.app_name) {
             public void onDrawerClosed(View view) {
@@ -65,14 +128,6 @@ public class MainActivity extends AppCompatActivity {
         };
 
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
-
-        planetTitles = getResources().getStringArray(R.array.planets_array);
-        drawerList = (ListView) findViewById(R.id.left_drawer);
-        drawerList.setAdapter(new ArrayAdapter<String>(this,
-                R.layout.drawer_list_item, planetTitles));
-        drawerList.setOnItemClickListener(new DrawerItemClickListener());
-
-        getFragmentManager().beginTransaction().replace(R.id.content_frame, new MainFragment()).commit();
     }
 
     @Override
@@ -92,6 +147,7 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_add) {
+            actionAddExpense();
             return true;
         }
 
