@@ -3,12 +3,19 @@ package ru.key_next.savemoney;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.Fragment;
-import android.app.FragmentManager;
+import android.content.DialogInterface;
+import android.os.Build;
+import android.support.v4.app.FragmentManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -18,6 +25,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
@@ -34,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
     private ListView drawerList;
     private android.support.v7.app.ActionBar actionBar;
 
+    private boolean mIsLargeLayout;
+
     private final static int DIALOG = 1;
     private int myYear = 2011;
     private int myMonth = 02;
@@ -45,21 +55,96 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mTitle = drawerTitle = getTitle();
+        mIsLargeLayout = getResources().getBoolean(R.bool.large_layout);
 
         this.createActionBar();
         this.fillDrawerList();
         this.fillMainList();
     }
 
+    public static class AddExpenseDialogFragment extends DialogFragment {
+        @Override
+        public void onCreate(@Nullable Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+
+//            setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Holo_Light_Dialog);
+//            setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Holo_Light);
+        }
+
+        @Nullable
+        @Override
+        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+            return inflater.inflate(R.layout.dialog_fragment_add_expense, container, false);
+        }
+
+//        @NonNull
+//        @Override
+//        public Dialog onCreateDialog(Bundle savedInstanceState) {
+//            Dialog dialog = super.onCreateDialog(savedInstanceState);
+//
+////            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+//
+//            return dialog;
+//        }
+
+        @NonNull
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            // Get the layout inflater
+            LayoutInflater inflater = getActivity().getLayoutInflater();
+
+            // Inflate and set the layout for the dialog
+            // Pass null as the parent view because its going in the dialog layout
+            builder.setView(inflater.inflate(R.layout.dialog_fragment_add_expense, null))
+//                    .setTitle("tiiitle")
+                    // Add action buttons
+                    .setPositiveButton("btn ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int id) {
+                            // sign in the user ...
+                        }
+                    })
+                    .setNegativeButton("btn no", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            AddExpenseDialogFragment.this.getDialog().cancel();
+                        }
+                    });
+            return builder.create();
+        }
+    }
+
+    public void showDialogFragment() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        AddExpenseDialogFragment newFragment = new AddExpenseDialogFragment();
+
+        mIsLargeLayout = true;
+
+        if (mIsLargeLayout) {
+            newFragment.show(fragmentManager, "dialog");
+        } else {
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
+
+            transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            transaction.add(getContentViewId(), newFragment)
+                    .addToBackStack(null).commit();
+        }
+    }
+
+    public static int getContentViewId() {
+        return Build.VERSION.SDK_INT>=Build.VERSION_CODES.ICE_CREAM_SANDWICH ? android.R.id.content : R.id.action_bar_activity_content;
+    }
+
     public void actionAddExpense() {
-        showDialog(DIALOG);
+//        showDialog(DIALOG);
+        showDialogFragment();
     }
 
     protected Dialog onCreateDialog(int id) {
         if (id == DIALOG) {
-            DatePickerDialog tpd = new DatePickerDialog(this, myCallBack, myYear, myMonth, myDay);
-            return tpd;
+            return new DatePickerDialog(this, myCallBack, myYear, myMonth, myDay);
         }
+
         return super.onCreateDialog(id);
     }
 
@@ -160,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
         args.putInt(PlanetFragment.ARG_PLANET_NUMBER, position);
         fragment.setArguments(args);
 
-        FragmentManager fragmentManager = getFragmentManager();
+        android.app.FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 
         drawerList.setItemChecked(position, true);
