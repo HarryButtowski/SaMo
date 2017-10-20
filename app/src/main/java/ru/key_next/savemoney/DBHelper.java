@@ -27,6 +27,10 @@ class DBHelper extends SQLiteOpenHelper {
 //        }
     }
 
+    private String test(){
+        return "eee";
+    }
+
     public static final class PeriodColumns implements BaseColumns {
         public static final String TABLE = "period";
         public static final String START_DATE_TIME_COLUMN = "start_date_time";
@@ -39,8 +43,12 @@ class DBHelper extends SQLiteOpenHelper {
                         END_DATE_TIME_COLUMN + " INTEGER, " +
                         PLAN_COLUMN + " BIGINT);";
 
-        private PeriodColumns() {
-        }
+//        private PeriodColumns() {
+//        }
+
+//        public static String test() {
+//            return DBHelper.test();
+//        }
     }
 
     public static final class DayColumns implements BaseColumns {
@@ -60,8 +68,8 @@ class DBHelper extends SQLiteOpenHelper {
                         PeriodColumns.TABLE +
                         " (_ID));";
 
-        private DayColumns() {
-        }
+//        private DayColumns() {
+//        }
     }
 
     public static final class ExpenseColumns implements BaseColumns {
@@ -79,8 +87,8 @@ class DBHelper extends SQLiteOpenHelper {
                         ExpenseDictionaryColumns.TABLE +
                         " (_ID));";
 
-        private ExpenseColumns() {
-        }
+//        private ExpenseColumns() {
+//        }
     }
 
     public static final class ExpenseDictionaryColumns implements BaseColumns {
@@ -91,7 +99,7 @@ class DBHelper extends SQLiteOpenHelper {
                         _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         NAME_COLUMN + " VARCHAR(255));";
 
-        private ExpenseDictionaryColumns() {
-        }
+//        private ExpenseDictionaryColumns() {
+//        }
     }
 }

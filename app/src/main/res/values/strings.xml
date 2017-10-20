@@ -21,4 +21,12 @@
     <string name="default_sum">0.00</string>
     <string name="remain_of_day">(остаток на день)</string>
     <string name="remain_of_day_with_remain">(остаток на день с учетом экономии)</string>
+    <string name="add_expense">Добавить статью расхода</string>
+    <string name="expense_label">Статья расходов</string>
+    <string name="choose">Выбрать</string>
+    <string name="add">Добавить</string>
+    <string name="category_label">Категория</string>
+    <string name="expense_name">Статья расхода</string>
+    <string name="parent_category_label">Родительская категория</string>
+    <string name="expense_category">Категория расхода</string>
 </resources>
