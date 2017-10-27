@@ -2,6 +2,7 @@ package ru.key_next.savemoney;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -23,7 +24,7 @@ public class AddExpenseDictionaryDialogFragment extends DialogFragment implement
     public final static String FRAGMENT_TAG = "add_expense_category_dialog_fragment";
     public final static String CATEGORIES_BUNDLE_KEY = "add_expense_category_dialog_fragment";
 
-    private ArrayList<String> categories = new ArrayList<String>();
+    private ArrayList<DBHelper.ExpenseCategory.Category> categories;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -98,10 +99,11 @@ public class AddExpenseDictionaryDialogFragment extends DialogFragment implement
 
         Bundle bundle = new Bundle();
 
-        categories.add("ww");
-        categories.add("ee");
+        SQLiteDatabase db = new DBHelper(getActivity()).getWritableDatabase();
+        categories = DBHelper.ExpenseCategory.getAll(db);
+        db.close();
 
-        bundle.putStringArray(CATEGORIES_BUNDLE_KEY, categories.toArray(new String[0]));
+        bundle.putParcelableArrayList(CATEGORIES_BUNDLE_KEY, categories);
         newFragment.setArguments(bundle);
 
         newFragment.show(fragmentManager, AddExpenseCategoryDialogFragment.FRAGMENT_TAG);
@@ -109,6 +111,6 @@ public class AddExpenseDictionaryDialogFragment extends DialogFragment implement
 
     @Override
     public void updateExpenseCategory() {
-        categories.add("bb");
+//        categories.add("bb");
     }
 }

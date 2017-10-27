@@ -2,10 +2,12 @@ package ru.key_next.savemoney;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,21 +15,24 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
+import android.widget.TextView;
+
+import ru.key_next.savemoney.DBHelper.ExpenseCategory.Category;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class AddExpenseCategoryDialogFragment extends DialogFragment implements View.OnClickListener {
     private OnCallbackUpdateExpenseCategory callbackUpdateExpenseCategory;
     private Dialog dialog;
+    private SparseArray<Category> spinnerMap = new SparseArray<Category>();
 
     public final static String FRAGMENT_TAG = "add_expense_dictionary_dialog_fragment";
-
-    private String[] categories;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        Bundle bundle = getArguments();
-        categories = bundle.getStringArray(AddExpenseDictionaryDialogFragment.CATEGORIES_BUNDLE_KEY);
     }
 
     @Nullable
@@ -42,9 +47,8 @@ public class AddExpenseCategoryDialogFragment extends DialogFragment implements 
         buttonCancel.setOnClickListener(this);
 
         Spinner spinner = view.findViewById(R.id.expense_parent_category_spinner);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, categories);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
+
+        spinner.setAdapter(getCategoryAdapter());
 
         return view;
     }
@@ -74,8 +78,12 @@ public class AddExpenseCategoryDialogFragment extends DialogFragment implements 
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.button_ok:
-                System.out.println("OnClick");
-                callbackUpdateExpenseCategory.updateExpenseCategory();
+                Spinner spinner = (Spinner)  getView().findViewById(R.id.expense_parent_category_spinner);
+                String categoryName = ((TextView) getView().findViewById(R.id.category_name)).getText().toString();
+                Category category = spinnerMap.get(spinner.getSelectedItemPosition());
+
+                addCategory(category._id, categoryName);
+
                 dismiss();
 
                 break;
@@ -85,5 +93,26 @@ public class AddExpenseCategoryDialogFragment extends DialogFragment implements 
 
                 break;
         }
+    }
+
+    private void addCategory(String id, String categoryName) {
+        SQLiteDatabase db = new DBHelper(getActivity()).getWritableDatabase();
+        DBHelper.ExpenseCategory.set(db, id, categoryName);
+        db.close();
+    }
+
+    public ExpenseCategoryAdapter getCategoryAdapter() {
+        Bundle bundle = getArguments();
+        ArrayList<Category> categories = new ArrayList<Category>();
+        Category category = new Category("0", "0", "Без категории", 0);
+
+        categories.add(category);
+        categories.addAll((ArrayList) bundle.getParcelableArrayList(AddExpenseDictionaryDialogFragment.CATEGORIES_BUNDLE_KEY));
+
+        for (int i = 0; i < categories.size(); i++) {
+            spinnerMap.put(i, categories.get(i));
+        }
+
+        return new ExpenseCategoryAdapter(getContext(), categories);
     }
 }
